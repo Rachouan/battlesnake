@@ -113,7 +113,7 @@ function moveDelta(move: string) {
       return { x: 0, y: 1 };
     case "left":
       return { x: -1, y: 0 };
-    case "right":
+    default:
       return { x: 1, y: 0 };
   }
 }
@@ -130,8 +130,8 @@ function checkSafeMoves(board: number[][], x: number, y: number) {
 // See https://docs.battlesnake.com/api/example-move for available data
 function move(gameState: GameState): MoveResponse {
   // We've included code to prevent your Battlesnake from moving backwards
-  const myHead = gameState.you.body[0];
-  const myNeck = gameState.you.body[1];
+  const head = gameState.you.body[0];
+  // const neck = gameState.you.body[1];
 
   const board = generateBoard(gameState.board);
 
@@ -142,18 +142,10 @@ function move(gameState: GameState): MoveResponse {
     right: true,
   };
 
-  // TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
-  // boardWidth = gameState.board.width;
-  // boardHeight = gameState.board.height;
-
-  // TODO: Step 2 - Prevent your Battlesnake from colliding with itself
-  // myBody = gameState.you.body;
-
-  // TODO: Step 3 - Prevent your Battlesnake from colliding with other Battlesnakes
-  // opponents = gameState.board.snakes;
-
   // Are there any safe moves left?
-  const safeMoves = Object.keys(isMoveSafe).filter((key) => isMoveSafe[key]);
+  const safeMoves = Object.keys(isMoveSafe).filter((key: string) =>
+    checkSafeMoves(board, head.x + moveDelta(key).x, head.y + moveDelta(key).y)
+  );
 
   // Object.keys(isMoveSafe).filter((key) => isMoveSafe[key])
   if (safeMoves.length == 0) {
