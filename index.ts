@@ -105,38 +105,42 @@ function generateBoard(board: Board) {
   return boardArr;
 }
 
+function moveDelta(move: string) {
+  switch (move) {
+    case "up":
+      return { x: 0, y: -1 };
+    case "down":
+      return { x: 0, y: 1 };
+    case "left":
+      return { x: -1, y: 0 };
+    case "right":
+      return { x: 1, y: 0 };
+  }
+}
+
+function checkSafeMoves(board: number[][], x: number, y: number) {
+  if (x < 0 || x > board[0].length - 1) return false;
+  if (y < 0 || y > board.length - 1) return false;
+  if (board[y][x] === 2) return false;
+  return true;
+}
+
 // move is called on every turn and returns your next move
 // Valid moves are "up", "down", "left", or "right"
 // See https://docs.battlesnake.com/api/example-move for available data
 function move(gameState: GameState): MoveResponse {
+  // We've included code to prevent your Battlesnake from moving backwards
+  const myHead = gameState.you.body[0];
+  const myNeck = gameState.you.body[1];
+
+  const board = generateBoard(gameState.board);
+
   let isMoveSafe: { [key: string]: boolean } = {
     up: true,
     down: true,
     left: true,
     right: true,
   };
-
-  // We've included code to prevent your Battlesnake from moving backwards
-  const myHead = gameState.you.body[0];
-  const myNeck = gameState.you.body[1];
-
-  if (myNeck.x < myHead.x) {
-    // Neck is left of head, don't move left
-    isMoveSafe.left = false;
-  } else if (myNeck.x > myHead.x) {
-    // Neck is right of head, don't move right
-    isMoveSafe.right = false;
-  } else if (myNeck.y < myHead.y) {
-    // Neck is below head, don't move down
-    isMoveSafe.down = false;
-  } else if (myNeck.y > myHead.y) {
-    // Neck is above head, don't move up
-    isMoveSafe.up = false;
-  }
-
-  const board = generateBoard(gameState.board);
-
-  console.log(JSON.parse(JSON.stringify(board)));
 
   // TODO: Step 1 - Prevent your Battlesnake from moving out of bounds
   // boardWidth = gameState.board.width;
@@ -150,6 +154,8 @@ function move(gameState: GameState): MoveResponse {
 
   // Are there any safe moves left?
   const safeMoves = Object.keys(isMoveSafe).filter((key) => isMoveSafe[key]);
+
+  // Object.keys(isMoveSafe).filter((key) => isMoveSafe[key])
   if (safeMoves.length == 0) {
     console.log(`MOVE ${gameState.turn}: No safe moves detected! Moving down`);
     return { move: "down" };
